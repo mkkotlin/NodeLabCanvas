@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-canvas',
-  imports: [CdkDrag, NgFor],
+  imports: [CdkDrag],
   templateUrl: './canvas.component.html',
   styleUrl: './canvas.component.css'
 })
@@ -18,5 +17,13 @@ export class CanvasComponent {
     { id: 2, type: 'Load Balancer', x: this.pos_x + 200, y: this.pos_y },
     { id: 3, type: "API Server", x: this.pos_x + 400, y: this.pos_y }
   ];
+  edges = [
+    { source: 1, target: 2 },
+    { source: 2, target: 3 }
+  ];
 
+  // helper getNode
+  getNode(id: number) {
+    return this.nodes.find(node => node.id === id);
+  }
 }
