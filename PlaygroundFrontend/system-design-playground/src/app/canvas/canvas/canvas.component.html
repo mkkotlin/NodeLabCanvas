@@ -16,7 +16,8 @@
 
   <!-- Node Elements -->
   @for(node of nodes; track node.id){
-  <div class="node-container" cdkDrag [cdkDragFreeDragPosition]="{x: node.x, y: node.y}">
+  <div class="node-container" cdkDrag (cdkDragEnded)="onDragEnd($event, node)"
+    [cdkDragFreeDragPosition]="{x: node.x, y: node.y}">
     <div class="node-wrapper">
       <!-- Status Badge -->
       <div class="node-status-bar">
@@ -38,7 +39,7 @@
         </div>
         <div class="node-details">
           <div class="node-title"> {{node.type}} </div>
-          <div class="node-meta"> {{node.x}} • {{node.y}}</div>
+          <div class="node-meta"> x:{{node.x}} • y:{{node.y}}</div>
         </div>
       </div>
 
@@ -51,9 +52,9 @@
 
   <!-- node connection -->
   <svg class="connections">
-    @for(edge of edges; track edge){
-    <line [attr.x1]="(getNode(edge.source)?.x ?? 0) + 80" [attr.y1]="(getNode(edge.source)?.y ?? 0 )+ 50"
-      [attr.x2]="(getNode(edge.target)?.x ?? 0) - 5" [attr.y2]="(getNode(edge.target)?.y ?? 0) + 50" stroke="white"
+    @for(edge of edges; track $index){
+    <line [attr.x1]="(getNode(edge.source)?.x ?? 0) + 250" [attr.y1]="(getNode(edge.source)?.y ?? 0) + 51"
+      [attr.x2]="(getNode(edge.target)?.x ?? 0)" [attr.y2]="(getNode(edge.target)?.y ?? 0) + 51" stroke="white"
       stroke-width="2" />
     }
   </svg>
