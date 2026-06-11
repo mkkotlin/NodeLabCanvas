@@ -1,1 +1,61 @@
-<p>canvas works!</p>
+<div class="canvas">
+  <!-- Grid overlay background -->
+  <div class="grid-overlay"></div>
+
+  <!-- Canvas Header -->
+  <header class="canvas-header">
+    <div class="brand">
+      <span class="logo-dot"></span>
+      <h1 class="brand-title">NodeLab <span class="brand-sub">Canvas</span></h1>
+    </div>
+    <div class="status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-text">System design workspace online</span>
+    </div>
+  </header>
+
+  <!-- Node Elements -->
+  <div *ngFor="let node of nodes">
+    <div class="node-container" cdkDrag [cdkDragFreeDragPosition]="{x: node.x, y: node.y}">
+      <div class="node-wrapper">
+        <!-- Status Badge -->
+        <div class="node-status-bar">
+          <span class="status-badge">API</span>
+          <span class="status-pulse-green"></span>
+        </div>
+
+        <!-- Node Content -->
+        <div class="node-body">
+          <div class="node-icon-container">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
+              <rect x="2" y="13" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
+              <circle cx="6" cy="8" r="1" fill="currentColor" />
+              <circle cx="18" cy="8" r="1" fill="currentColor" />
+              <circle cx="6" cy="16" r="1" fill="currentColor" />
+              <circle cx="18" cy="16" r="1" fill="currentColor" />
+            </svg>
+          </div>
+          <div class="node-details">
+            <div class="node-title"> {{node.type}} </div>
+            <div class="node-meta"> {{node.x}} • {{node.y}}</div>
+          </div>
+        </div>
+
+        <!-- Connection Ports (Design decoration for connection feel) -->
+        <div class="port port-left" title="Input Port"></div>
+        <div class="port port-right" title="Output Port"></div>
+      </div>
+    </div>
+  </div>
+  <!-- node connection -->
+
+  @for(node of nodes; track node.id){
+  <div class="node" cdkDrag [cdkDragFreeDragPosition]="{x:node.x, y:node.y}">
+    {{node.type}}
+    <svg class="connections">
+      <line x1="110" y1="70" x2="350" y2="70" stroke="white" stroke-width="2" />
+    </svg>
+  </div>
+  }
+</div>
