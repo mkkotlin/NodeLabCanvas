@@ -1,62 +1,168 @@
-<div class="canvas">
-  <!-- Grid overlay background -->
-  <div class="grid-overlay"></div>
-
-  <!-- Canvas Header -->
+<div class="canvas-container">
+  <!-- Canvas Header (Fixed relative to screen viewport) -->
   <header class="canvas-header">
     <div class="brand">
       <span class="logo-dot"></span>
       <h1 class="brand-title">NodeLab <span class="brand-sub">Canvas</span></h1>
     </div>
+
+    <!-- Toolbar to add nodes -->
+    <div class="canvas-toolbar">
+      <span class="toolbar-label">Add Node:</span>
+      <div class="toolbar-buttons">
+        <button (click)="addNode('Client')" class="btn-tool btn-client" title="Add Client">Client</button>
+        <button (click)="addNode('Load Balancer')" class="btn-tool btn-lb" title="Add Load Balancer">LB</button>
+        <button (click)="addNode('API Server')" class="btn-tool btn-api" title="Add API Server">API</button>
+        <button (click)="addNode('Cache')" class="btn-tool btn-cache" title="Add Cache">Cache</button>
+        <button (click)="addNode('Database')" class="btn-tool btn-db" title="Add Database">DB</button>
+        <button (click)="addNode('Queue')" class="btn-tool btn-queue" title="Add Queue">Queue</button>
+        <button (click)="addNode('Worker')" class="btn-tool btn-worker" title="Add Worker">Worker</button>
+        <button (click)="addNode('Custom')" class="btn-tool btn-custom" title="Add Custom Node">Custom</button>
+      </div>
+    </div>
+
     <div class="status-indicator">
       <span class="pulse-dot"></span>
       <span class="status-text">System design workspace online</span>
     </div>
   </header>
 
-  <!-- Node Elements -->
-  @for(node of nodes; track node.id){
-  <div class="node-container" cdkDrag (cdkDragEnded)="onDragEnd($event, node)"
-    [cdkDragFreeDragPosition]="{x: node.x, y: node.y}">
-    <div class="node-wrapper">
-      <!-- Status Badge -->
-      <div class="node-status-bar">
-        <span class="status-badge">API</span>
-        <span class="status-pulse-green"></span>
-      </div>
+  <!-- Large Scrollable Canvas Area -->
+  <div class="canvas" (mousemove)="onMouseMove($event)" (click)="onCanvasClick($event)">
+    <!-- Grid overlay background -->
+    <div class="grid-overlay"></div>
 
-      <!-- Node Content -->
-      <div class="node-body">
-        <div class="node-icon-container">
-          <svg class="node-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="5" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
-            <rect x="2" y="13" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
-            <circle cx="6" cy="8" r="1" fill="currentColor" />
-            <circle cx="18" cy="8" r="1" fill="currentColor" />
-            <circle cx="6" cy="16" r="1" fill="currentColor" />
-            <circle cx="18" cy="16" r="1" fill="currentColor" />
-          </svg>
+    <!-- Node Elements -->
+    @for(node of nodes; track node.id){
+    <div class="node-container" cdkDrag (cdkDragEnded)="onDragEnd($event, node)"
+      [cdkDragFreeDragPosition]="{x: node.x, y: node.y}">
+      <div [class]="'node-wrapper ' + getNodeTypeClass(node.type)">
+        <!-- Status Badge & Delete Actions -->
+        <div class="node-status-bar">
+          <span class="status-badge">{{ getBadgeText(node.type) }}</span>
+          <div class="status-actions">
+            <span class="status-pulse-green"></span>
+            <button class="delete-btn" title="Delete Node" 
+              (mousedown)="$event.stopPropagation()" 
+              (touchstart)="$event.stopPropagation()"
+              (click)="deleteNode($event, node.id)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="delete-icon">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
-        <div class="node-details">
-          <div class="node-title"> {{node.type}} </div>
-          <div class="node-meta"> x:{{node.x}} • y:{{node.y}}</div>
-        </div>
-      </div>
 
-      <!-- Connection Ports (Design decoration for connection feel) -->
-      <div class="port port-left" title="Input Port"></div>
-      <div class="port port-right" title="Output Port"></div>
+        <!-- Node Content -->
+        <div class="node-body">
+          <div class="node-icon-container">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              @switch (node.type) {
+                @case ('Client') {
+                  <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2" />
+                  <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2" />
+                }
+                @case ('Load Balancer') {
+                  <path d="M12 3v18M12 12h8M12 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M17 9l3 3-3 3M7 9L4 12l3 3M15 18l-3 3-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                }
+                @case ('API Server') {
+                  <rect x="2" y="5" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <rect x="2" y="13" width="20" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
+                  <circle cx="6" cy="8" r="1" fill="currentColor" />
+                  <circle cx="18" cy="8" r="1" fill="currentColor" />
+                  <circle cx="6" cy="16" r="1" fill="currentColor" />
+                  <circle cx="18" cy="16" r="1" fill="currentColor" />
+                }
+                @case ('Cache') {
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                }
+                @case ('Database') {
+                  <ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" stroke-width="2" />
+                  <path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6" stroke="currentColor" stroke-width="2" />
+                }
+                @case ('Queue') {
+                  <rect x="2" y="4" width="6" height="16" rx="1" stroke="currentColor" stroke-width="2" />
+                  <rect x="10" y="4" width="6" height="16" rx="1" stroke="currentColor" stroke-width="2" />
+                  <rect x="18" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2" />
+                }
+                @case ('Worker') {
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2" />
+                }
+                @case ('WebSocket Server') {
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                  <path d="M12 3a9 9 0 0 1 9 9M3 12a9 9 0 0 1 9-9M12 6a6 6 0 0 1 6 6M6 12a6 6 0 0 1 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                }
+                @case ('Custom') {
+                  <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                }
+                @default {
+                  <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+                }
+              }
+            </svg>
+          </div>
+          <div class="node-details">
+            @if (node.type === 'Custom') {
+              <input [value]="node.name" 
+                     (input)="onRenameNode($event, node)" 
+                     (mousedown)="$event.stopPropagation()" 
+                     (touchstart)="$event.stopPropagation()" 
+                     class="node-title-input" 
+                     placeholder="Enter Name..." />
+            } @else {
+              <div class="node-title"> {{node.name}} </div>
+            }
+            <div class="node-meta"> x:{{node.x}} • y:{{node.y}}</div>
+          </div>
+        </div>
+
+        <!-- Connection Ports -->
+        <div class="port port-left" title="Input Port" 
+          (mousedown)="$event.stopPropagation()"
+          (touchstart)="$event.stopPropagation()"
+          (click)="onInputPortClick($event, node.id)"></div>
+        <div class="port port-right" title="Output Port" 
+          (mousedown)="$event.stopPropagation()"
+          (touchstart)="$event.stopPropagation()"
+          (click)="onOutputPortClick($event, node.id)"></div>
+      </div>
     </div>
-  </div>
-  }
-
-  <!-- node connection -->
-  <svg class="connections">
-    @for(edge of edges; track $index){
-    <line [attr.x1]="(getNode(edge.source)?.x ?? 0) + 250" [attr.y1]="(getNode(edge.source)?.y ?? 0) + 51"
-      [attr.x2]="(getNode(edge.target)?.x ?? 0)" [attr.y2]="(getNode(edge.target)?.y ?? 0) + 51" stroke="white"
-      stroke-width="2" />
     }
-  </svg>
 
+    <!-- Node Connection SVG Overlay -->
+    <svg class="connections">
+      <defs>
+        <!-- Arrow marker for completed lines -->
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="white" />
+        </marker>
+        <!-- Arrow marker for active preview connection lines -->
+        <marker id="arrow-preview" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#a855f7" />
+        </marker>
+      </defs>
+      
+      <!-- Render Completed Edges -->
+      @for(edge of edges; track $index){
+        @if (getNode(edge.source) && getNode(edge.target)) {
+          <!-- Invisible thick stroke for easier clicking / hovering -->
+          <line [attr.x1]="getEdgeStartX(edge)" [attr.y1]="getEdgeStartY(edge)" [attr.x2]="getEdgeEndX(edge)"
+            [attr.y2]="getEdgeEndY(edge)" stroke="transparent" stroke-width="12" class="edge-hitbox" (click)="deleteEdge($event, edge)" />
+          <!-- Visible edge line -->
+          <line [attr.x1]="getEdgeStartX(edge)" [attr.y1]="getEdgeStartY(edge)" [attr.x2]="getEdgeEndX(edge)"
+            [attr.y2]="getEdgeEndY(edge)" stroke="white" stroke-width="2" marker-end="url(#arrow)" class="edge-line" (click)="deleteEdge($event, edge)" />
+        }
+      }
+
+      <!-- Render active preview drawing line -->
+      @if (isConnecting && connectionPreviewNode !== null) {
+        <line [attr.x1]="previewLine.x1" [attr.y1]="previewLine.y1" [attr.x2]="previewLine.x2"
+          [attr.y2]="previewLine.y2" stroke="#a855f7" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-preview)" />
+      }
+    </svg>
+  </div>
 </div>
